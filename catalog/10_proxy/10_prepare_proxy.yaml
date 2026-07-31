@@ -1,0 +1,67 @@
+# INSTALL
+- name: Bootstrap proxy
+  hosts:
+    - workers
+    - masters
+    - load_balancers
+  tags:
+    - prepare
+    - prepare:proxy
+  roles:
+    - role: rridane.base_systems.system_configure_proxy
+      vars:
+        http_proxy: "{{ full_corporate_proxy }}"
+        no_proxy_list: []
+        no_proxy: ""
+      when: prepare_proxy | default(false)
+    - role: rridane.base_systems.system_manage_cntlm
+      when: prepare_proxy | default(false)
+
+- name: Create and start cntlm systemd unit, update proxy to cntlm
+  hosts:
+    - workers
+    - masters
+    - load_balancers
+  tags:
+    - prepare
+    - prepare:proxy
+  roles:
+    - role: rridane.base_systems.system_manage_systemd_unit
+      when: prepare_proxy | default(false)
+    - role: rridane.base_systems.system_configure_proxy
+      vars:
+        http_proxy: "http://127.0.0.1:{{ cntlm_listen_port }}"
+      when: prepare_proxy | default(false)
+
+# UNINSTALL
+- name: Ensure proxy is not present
+  hosts:
+    - workers
+    - masters
+    - load_balancers
+  tags:
+    - clean
+    - clean:proxy
+  roles:
+    - role: rridane.base_systems.system_configure_proxy
+      vars:
+        proxy_state: absent
+      when: prepare_proxy | default(false)
+
+- name: Ensure cntlm is not present
+  hosts:
+    - workers
+    - masters
+    - load_balancers
+  tags:
+    - clean
+    - clean:proxy
+  roles:
+    - role: rridane.base_systems.system_manage_systemd_unit
+      vars:
+        unit_present: false
+      when: prepare_proxy | default(false)
+    - role: rridane.base_systems.system_manage_cntlm
+      vars:
+        cntlm_state: absent
+      when: prepare_proxy | default(false)

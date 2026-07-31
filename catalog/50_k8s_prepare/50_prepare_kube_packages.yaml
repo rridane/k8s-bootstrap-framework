@@ -1,0 +1,26 @@
+---
+# INSTALL
+- name: Install kubernetes packages (kubeadm/kubelet/kubectl)
+  hosts:
+    - workers
+    - masters
+  tags:
+    - prepare
+    - prepare:kube_packages
+  roles:
+    - role: rridane.base_systems.system_install_kube_packages
+      when: prepare_kube_packages | default(false)
+
+# UNINSTALL
+- name: Remove kubernetes packages
+  hosts:
+    - workers
+    - masters
+  tags:
+    - clean
+    - clean:kube_packages
+  roles:
+    - role: rridane.base_systems.system_install_kube_packages
+      vars:
+        kube_state: absent
+      when: prepare_kube_packages | default(false)

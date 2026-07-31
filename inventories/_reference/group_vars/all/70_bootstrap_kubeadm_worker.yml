@@ -1,0 +1,6 @@
+---
+# === 70 · Bootstrap workers · join kubeadm — rôle k8s_manage_worker_nodes ===
+bootstrap_kubeadm_worker: false           # true => active bootstrap:kubeadm_worker_nodes
+# Les workers rejouent la commande de join générée sur le primaire (cf. 60, via k8s_primary_cp_host).
+# k8s_manage_kubelet: true
+# k8s_kubelet_service_name: kubelet

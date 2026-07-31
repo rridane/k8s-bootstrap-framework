@@ -1,0 +1,11 @@
+---
+# === 00 · Base machine · NTP — rôle system_configure_time ===
+prepare_time: false                        # true pour activer cette étape
+
+# time_state: present                     # present | absent
+# time_package: chrony                    # paquet du démon (chrony / chronyd)
+# time_service: chrony                    # unité systemd
+# time_ntp_servers: []                    # ex: ["time.cloudflare.com"]
+# time_ntp_pools: []                      # ex: ["pool.ntp.org"]
+# time_conf_file: /etc/chrony/conf.d/10-ansible.conf
+# time_timezone: ""                       # ex: "Europe/Paris" ; vide => ne pas toucher

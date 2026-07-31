@@ -1,0 +1,27 @@
+# Present
+- name: install nfs common packages
+  hosts:
+    - workers
+    - masters
+  tags:
+    - prepare
+    - prepare:nfs
+  roles:
+    - role: rridane.base_systems.system_install_nfs_commons
+      vars:
+        nfs_common_state: present
+      when: prepare_nfs | default(false)
+
+# Absent
+- name: remove nfs common packages
+  hosts:
+    - workers
+    - masters
+  tags:
+    - clean
+    - clean:nfs
+  roles:
+    - role: rridane.base_systems.system_install_nfs_commons
+      vars:
+        nfs_common_state: absent
+      when: prepare_nfs | default(false)

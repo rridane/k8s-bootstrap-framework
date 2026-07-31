@@ -1,0 +1,53 @@
+---
+# === 10 · Proxy corporate NTLM ===
+# Rôles : system_configure_proxy + system_manage_cntlm + system_manage_systemd_unit
+prepare_proxy: false
+
+# full_corporate_proxy: "http://{{ vault_proxy_user }}:{{ vault_proxy_pass }}@proxy:3128"  # bootstrap cntlm — VAULTER
+
+# --- system_configure_proxy ---
+# proxy_state: present                    # present | absent
+# http_proxy: ""                          # http://proxy:3128
+# https_proxy: ""                         # vide => retombe sur http_proxy
+# no_proxy: ""                            # liste explicite (prioritaire)
+# no_proxy_list: [127.0.0.1, localhost, .svc, .cluster.local]
+# no_proxy_extra: []
+# apt_proxy_file: /etc/apt/apt.conf.d/99-proxy.conf
+# environment_file: /etc/environment
+# environment_block_name: ansible_managed_proxy
+# systemd_dropin_dir: /etc/systemd/system.conf.d
+# systemd_dropin_file: 10-proxy.conf
+
+# --- system_manage_cntlm ---
+# cntlm_state: present
+# cntlm_version: 0.94.0                   # ou fournir cntlm_source_url
+# cntlm_source_url: ""
+# cntlm_source_checksum: ""
+# cntlm_build_dir: /usr/local/src/cntlm
+# cntlm_bin_path: /usr/local/sbin/cntlm
+# cntlm_conf_path: /etc/cntlm.conf
+# cntlm_username: ""                      # VAULTER
+# cntlm_domain: ""                        # VAULTER
+# cntlm_password: ""                      # VAULTER (ou cntlm_pass_ntlmv2)
+# cntlm_pass_ntlmv2: ""                   # hash NTLMv2 (préféré) — VAULTER
+# cntlm_listen_host: ""
+# cntlm_listen_port: 3128
+# cntlm_upstream_host: 127.0.0.1          # le vrai proxy corporate
+# cntlm_upstream_port: 3128
+# cntlm_no_proxy: []                      # liste ou string
+# cntlm_extra_options: []
+# cntlm_restart_on_change: true
+
+# --- system_manage_systemd_unit (l'unité cntlm) ---
+# unit_name: cntlm.service                # REQUIS si on gère l'unité
+# unit_state: started                     # started | stopped | restarted | reloaded | null
+# unit_enabled: true
+# unit_masked: false
+# unit_present: true
+# unit_scope: system                      # system | user
+# unit_content: ""                        # contenu inline du .service (bloc |)
+# unit_dropins: []                        # [{name: override.conf, content: "..."}]
+# unit_envfile_path: ""
+# unit_envfile_content: ""
+# unit_restart_on_change: true
+# unit_validate_with_systemd_analyze: true

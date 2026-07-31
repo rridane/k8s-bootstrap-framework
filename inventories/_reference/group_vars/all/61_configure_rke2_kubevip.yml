@@ -1,0 +1,12 @@
+---
+# === 61 · Bootstrap masters · kube-vip (VIP de l'API, génère un manifest) — rôle rke2_kubevip ===
+# DaemonSet + RBAC déposés dans server/manifests/ AVANT le start du primaire ; RKE2 les
+# applique au boot -> VIP en ARP L2 (leader election via Lease). On génère, on n'applique pas.
+configure_rke2_kubevip: false          # true pour activer cette étape (tag configure:rke2_kubevip)
+
+kubevip_vip: "10.0.0.5"                   # REQUIS — VIP de l'API
+
+# kubevip_interface: ""                   # vide => auto-détection ; sinon l'interface (ex ens4)
+# kubevip_image: ghcr.io/kube-vip/kube-vip:v0.8.7
+# kubevip_extra_env: {}                   # env kube-vip additionnels (nom: valeur)
+# kubevip_manifest_path: /var/lib/rancher/rke2/server/manifests/kube-vip.yaml

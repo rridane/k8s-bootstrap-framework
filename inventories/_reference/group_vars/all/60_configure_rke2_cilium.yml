@@ -1,0 +1,13 @@
+---
+# === 60 · Bootstrap masters · Cilium CNI (génère un manifest) — rôle rke2_cilium ===
+# HelmChartConfig déposé dans server/manifests/ AVANT le start du primaire (RKE2 déploie
+# Cilium lui-même puis applique ce manifest). On génère, on n'applique pas.
+configure_rke2_cilium: false           # true pour activer cette étape (tag configure:rke2_cilium)
+
+# cilium_values:                          # pass-through => valuesContent du HelmChartConfig
+#   kubeProxyReplacement: true
+#   k8sServiceHost: "127.0.0.1"           # LB API local RKE2 (surtout PAS la VIP — deadlock)
+#   k8sServicePort: 6443
+#   l2announcements: { enabled: true }
+#   k8sClientRateLimit: { qps: 10, burst: 20 }
+# cilium_manifest_path: /var/lib/rancher/rke2/server/manifests/rke2-cilium-config.yaml

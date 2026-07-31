@@ -1,0 +1,11 @@
+---
+# Cilium doit être posé AVANT le start du primaire (c'est le CNI).
+- name: Configure Cilium (HelmChartConfig)
+  hosts: master_primary
+  become: true
+  tags:
+    - bootstrap
+    - configure:rke2_cilium
+  roles:
+    - role: rridane.kubernetes_admin.rke2_cilium
+      when: configure_rke2_cilium | default(false)

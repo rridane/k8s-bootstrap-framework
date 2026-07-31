@@ -1,0 +1,21 @@
+---
+# === 30 · Load balancer · haproxy + keepalived — rôle system_install_haproxy_keepalived ===
+# Contexte kubeadm/on-prem. RKE2 n'en a PAS besoin (kube-vip). Groupe : load_balancers.
+prepare_load_balancer: false
+
+# haproxy_keepalived_state: present       # present | absent
+# haproxy_keepalived_purge: false         # purge les paquets si absent
+# keepalived_interface: eth0              # REQUIS — interface portant la VIP
+# ha_vip: 192.168.1.100                   # REQUIS — la VIP
+# keepalived_virtual_route_id: 100        # VRRP id — UNIQUE par domaine L2
+# masters: []                             # [{hostname, ip, port}] backends control-plane
+# nodes: []                               # [{hostname, ip, port}] backends ingress
+# api_server_frontend_port: 6443
+# traefik_frontend_port: 9000
+# haproxy_default_mode: tcp               # tcp | http
+# haproxy_frontend_stats_port: 8404
+# haproxy_frontend_stats_username: admin
+# haproxy_frontend_stats_password: admin  # VAULTER
+# haproxy_dataplaneapi_user: dataplane
+# haproxy_username: haproxy
+# haproxy_groupname: haproxy

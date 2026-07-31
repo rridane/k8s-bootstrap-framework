@@ -1,0 +1,9 @@
+---
+# Modèle de secrets. Copier en `vault.yml` puis : ansible-vault encrypt vault.yml
+# Référencer ces clés depuis les fichiers manage_*.yml (jamais de secret en clair).
+
+# --- Proxy corporate (étape 10_prepare_proxy) ---
+vault_proxy_user: CHANGEME
+vault_proxy_pass: CHANGEME
+vault_cntlm_domain: CHANGEME
+vault_cntlm_pass_ntlmv2: CHANGEME        # openssl / cntlm -H pour générer le hash

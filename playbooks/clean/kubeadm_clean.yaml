@@ -1,0 +1,19 @@
+# Teardown kubeadm (ex-20-clean-kube). Node-level, gaté par les flags bootstrap_kubeadm_*.
+- name: Clean kube
+  hosts: all
+  become: true
+  tags:
+    - clean
+    - clean:kubeadm
+  roles:
+    - role: rridane.base_systems.system_cleanup_kube
+      when: (bootstrap_kubeadm_control_plane | default(false)) or (bootstrap_kubeadm_worker | default(false))
+      vars:
+        kube_cri_socket: "/var/run/containerd/containerd.sock"
+        kube_ask_confirmation: true            # will prompt yes
+        kube_cleanup_enabled: true
+        kube_cleanup_packages: true            # purge kubeadm/kubelet/kubectl
+        kube_cleanup_cni: true                 # clean /etc/cni/net.d + interfaces
+        kube_cleanup_calico: true              # clean Calico best-effort
+        kube_cleanup_ack: "confirm"
+        kube_cleanup_ack_expected: "confirm"

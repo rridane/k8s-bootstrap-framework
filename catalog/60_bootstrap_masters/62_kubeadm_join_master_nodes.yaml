@@ -1,0 +1,17 @@
+---
+- name: Join secondary control-planes
+  hosts: masters:!master_primary
+  become: true
+  serial: 1
+  tags:
+    - bootstrap
+    - bootstrap:kubeadm_control_planes
+  vars:
+    # Commande de join générée sur le primaire (fact posé par k8s_get_join_command).
+    k8s_join_command_control_plane: "{{ hostvars[k8s_primary_cp_host].k8s_join_command_control_plane }}"
+    k8s_manage_kubelet: true
+  roles:
+    - role: rridane.kubernetes_admin.k8s_manage_master_nodes
+      when:
+        - bootstrap_kubeadm_control_plane | default(false)
+        - groups['masters'] is defined and (groups['masters'] | length) > 1

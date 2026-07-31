@@ -1,0 +1,10 @@
+---
+# === 01 · Base machine · netplan — rôle system_configure_netplan (groupe dedicated) ===
+prepare_netplan: false
+
+# netplan_state: present                  # present | absent
+# netplan_file: /etc/netplan/60-ansible.yaml
+# netplan_renderer: networkd              # networkd | NetworkManager
+# netplan_apply: true                     # applique à chaud (auto-off en conteneur)
+# netplan_ethernets: {}                   # ens4: { addresses: ["10.0.0.1/24"], dhcp4: false }
+# netplan_vlans: {}                       # vlan100: { id: 100, link: ens4, addresses: ["10.0.0.1/24"] }

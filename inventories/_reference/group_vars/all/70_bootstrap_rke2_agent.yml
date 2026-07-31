@@ -1,0 +1,15 @@
+---
+# === 70 · Bootstrap workers · agents RKE2 — rôle rke2_agent ===
+# Les agents réutilisent rke2_server_url / rke2_join_token / rke2_version / rke2_channel (cf. 61).
+bootstrap_rke2_agent: false                    # true pour activer cette étape (tag bootstrap:rke2_agents)
+
+# Pour des réglages propres aux workers (labels, taints), surcharger rke2_config
+# dans group_vars/workers/ plutôt qu'ici (all) :
+#
+#   # inventories/<cible>/group_vars/workers/70_bootstrap_agent.yml
+#   rke2_config:
+#     node-ip: "{{ rke2_node_ip }}"
+#     node-label:
+#       - "node-role.kubernetes.io/worker=true"
+#     node-taint:
+#       - "dedicated=gpu:NoSchedule"

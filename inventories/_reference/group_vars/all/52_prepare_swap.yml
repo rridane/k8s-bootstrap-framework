@@ -1,0 +1,5 @@
+---
+# === 52 · Prépa k8s · swap — rôle system_configure_swap ===
+prepare_swap: false
+
+# swap_enabled: false                     # false => désactive le swap (requis k8s) ; true => l'active

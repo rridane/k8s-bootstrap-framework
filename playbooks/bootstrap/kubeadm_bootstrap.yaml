@@ -1,0 +1,5 @@
+# Bootstrap kubeadm.
+- import_playbook: ../../catalog/60_bootstrap_masters/60_kubeadm_bootstrap_cluster.yaml
+- import_playbook: ../../catalog/60_bootstrap_masters/61_kubeadm_generate_join_command.yaml
+- import_playbook: ../../catalog/60_bootstrap_masters/62_kubeadm_join_master_nodes.yaml
+- import_playbook: ../../catalog/70_bootstrap_workers/70_kubeadm_add_worker_nodes.yaml

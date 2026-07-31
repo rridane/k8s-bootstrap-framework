@@ -1,0 +1,12 @@
+---
+- name: Generate join commands on primary
+  hosts: master_primary
+  become: true
+  tags:
+    - bootstrap
+    - bootstrap:kubeadm_control_planes
+    - bootstrap:kubeadm_worker_nodes
+    - bootstrap:kubeadm_generate_join_command
+  roles:
+    - role: rridane.kubernetes_admin.k8s_get_join_command
+      when: (bootstrap_kubeadm_control_plane | default(false)) or (bootstrap_kubeadm_worker | default(false))

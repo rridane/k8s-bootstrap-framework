@@ -1,0 +1,10 @@
+---
+- name: Configure kube-vip (DaemonSet)
+  hosts: master_primary
+  become: true
+  tags:
+    - bootstrap
+    - configure:rke2_kubevip
+  roles:
+    - role: rridane.kubernetes_admin.rke2_kubevip
+      when: configure_rke2_kubevip | default(false)

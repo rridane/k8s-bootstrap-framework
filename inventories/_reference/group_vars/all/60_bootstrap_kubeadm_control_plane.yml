@@ -1,0 +1,34 @@
+---
+# === 60 · Bootstrap masters · control-plane kubeadm ===
+# Rôles : k8s_bootstrap_control_plane (init primaire) + k8s_get_join_command
+#         + k8s_manage_master_nodes (join des control-planes secondaires)
+bootstrap_kubeadm_control_plane: false    # true => active bootstrap:kubeadm_control_planes
+
+# Le primaire = unique hôte du groupe [master_primary] (comme rke2_primary).
+# REQUIS par k8s_bootstrap_control_plane et k8s_get_join_command.
+k8s_primary_cp_host: "{{ groups['master_primary'] | first }}"
+
+# --- k8s_bootstrap_control_plane (init du primaire) ---
+# k8s_kubernetes_version: v1.26.0
+# k8s_control_plane_endpoint: ""          # VIP:port du plan de contrôle, ex "api.k8s.internal:6443"
+# k8s_advertise_address: "{{ ansible_host | default('0.0.0.0') }}"
+# k8s_bind_port: 6443
+# k8s_pod_subnet: 10.244.0.0/16
+# k8s_service_subnet: 10.96.0.0/12
+# k8s_dns_domain: cluster.local
+# k8s_cluster_name: kubernetes
+# k8s_image_repository: registry.k8s.io
+# k8s_apiserver_certSANs: []              # ["127.0.0.1", "api.k8s.internal", "<VIP>"]
+# k8s_apiserver_extra_args: { authorization-mode: "Node,RBAC" }
+# k8s_controller_manager_extra_args: {}
+# k8s_scheduler_extra_args: {}
+# k8s_kubeadm_init_extra_args: []         # ex ["--upload-certs"]
+# k8s_etcd_local_enabled: true
+# k8s_etcd_data_dir: /mnt/data/etcd
+# k8s_timeout_for_control_plane: 4m0s
+# k8s_copy_kubeconfig_for_user_enabled: false
+
+# --- k8s_get_join_command (génère les commandes de join sur le primaire) ---
+# k8s_join_token_ttl: 24h0m0s
+# k8s_upload_certs: true
+# k8s_extra_join_args: []

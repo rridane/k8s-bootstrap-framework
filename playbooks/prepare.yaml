@@ -1,0 +1,15 @@
+# Prépa machines GÉNÉRIQUE — pioche dans le catalog, chaque étape gatée par son
+# feature-flag prepare_<x> (défaut false, activé dans group_vars/all/NN_prepare_<x>.yml).
+#   -t prepare = tout installer · -t clean = tout réverser
+#   -t prepare:proxy = une seule étape · -t clean:proxy = réverser une seule étape
+- import_playbook: ../catalog/00_base_machine/00_prepare_time.yaml
+- import_playbook: ../catalog/00_base_machine/01_prepare_netplan.yaml
+- import_playbook: ../catalog/10_proxy/10_prepare_proxy.yaml
+- import_playbook: ../catalog/20_dns/20_prepare_etc_hosts.yaml
+- import_playbook: ../catalog/30_load_balancer/30_prepare_load_balancer.yaml
+- import_playbook: ../catalog/40_runtime/40_prepare_containerd.yaml
+- import_playbook: ../catalog/50_k8s_prepare/50_prepare_kube_packages.yaml
+- import_playbook: ../catalog/50_k8s_prepare/51_prepare_network_rules.yaml
+- import_playbook: ../catalog/50_k8s_prepare/52_prepare_swap.yaml
+- import_playbook: ../catalog/50_k8s_prepare/53_prepare_nfs.yaml
+- import_playbook: ../catalog/50_k8s_prepare/54_prepare_cli_tools.yaml

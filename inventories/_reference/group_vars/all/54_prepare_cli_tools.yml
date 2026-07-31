@@ -1,0 +1,21 @@
+---
+# === 54 · Prépa k8s · CLIs admin — rôle system_k8s_cli_swissknife ===
+# helm, k9s, kustomize, jq, yq, kubent, popeye, krew. Utile partout, RKE2 inclus
+# (contrairement aux paquets kubeadm : c'est tout l'intérêt de la séparation).
+prepare_cli_tools: false
+
+# tools_state: present
+# bin_path: /usr/local/bin
+# system_arch: amd64
+# tools:                                  # chaque outil: {enabled, version ("" => dernière)}
+#   krew:  { enabled: true, krew_root: /opt/krew, plugins: [ctx, ns, neat, stern, tree] }
+#   helm:  { enabled: true }
+#   k9s:   { enabled: true }
+#   kustomize: { enabled: true }
+#   jq:    { enabled: true }
+#   yq:    { enabled: true }
+#   kubent: { enabled: true }
+#   popeye: { enabled: true }
+# krew_profile_script_dir: /etc/profile.d
+# krew_profile_script_name: krew.sh
+# tools_to_remove: [helm, k9s, kustomize, kubent, popeye, yq]   # retirés en mode absent

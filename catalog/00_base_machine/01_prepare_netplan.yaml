@@ -1,0 +1,23 @@
+# Present
+- name: Configure vRack interface (netplan)
+  hosts:
+    - dedicated
+  tags:
+    - prepare
+    - prepare:netplan
+  roles:
+    - role: rridane.base_systems.system_configure_netplan
+      when: prepare_netplan | default(false)
+
+# Absent
+- name: Configure vRack interface (netplan)
+  hosts:
+    - dedicated
+  tags:
+    - clean
+    - clean:netplan
+  roles:
+    - role: rridane.base_systems.system_configure_netplan
+      vars:
+        netplan_state: absent
+      when: prepare_netplan | default(false)

@@ -1,0 +1,8 @@
+# Bootstrap RKE2 (standalone). On GÉNÈRE d'abord tous les manifests (cilium + kube-vip)
+# dans server/manifests/, PUIS on amorce le primaire (RKE2 les applique au start),
+# et enfin les join.
+- import_playbook: ../../catalog/60_bootstrap_masters/60_rke2_configure_cilium.yaml
+- import_playbook: ../../catalog/60_bootstrap_masters/61_rke2_configure_kubevip.yaml
+- import_playbook: ../../catalog/60_bootstrap_masters/62_rke2_bootstrap_primary.yaml
+- import_playbook: ../../catalog/60_bootstrap_masters/63_rke2_join_servers.yaml
+- import_playbook: ../../catalog/70_bootstrap_workers/70_rke2_join_agents.yaml

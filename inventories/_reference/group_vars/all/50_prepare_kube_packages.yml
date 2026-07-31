@@ -1,0 +1,8 @@
+---
+# === 50 · Prépa k8s · paquets kubeadm — rôle system_install_kube_packages ===
+# kubelet/kubeadm/kubectl via APT. Contexte kubeadm — ne PAS activer en RKE2.
+prepare_kube_packages: false
+
+# kube_state: present                     # present | absent
+# kube_version: ""                        # ex "1.30.2-1.1" ; vide => dernière
+# kube_series: v1.30                      # série pkgs.k8s.io

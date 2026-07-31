@@ -1,0 +1,26 @@
+# Install
+- name: Add etc hosts
+  hosts: all
+  tags:
+    - prepare
+    - prepare:etc_hosts
+  vars:
+    etc_hosts_state: present
+  roles:
+    - role: rridane.base_systems.system_manage_etc_hosts
+      when: prepare_etc_hosts | default(false)
+
+# UNINSTALL
+- name: Ensure etc_hosts is clean
+  hosts:
+    - workers
+    - masters
+    - load_balancers
+  tags:
+    - clean
+    - clean:etc_hosts
+  vars:
+    etc_hosts_state: absent
+  roles:
+    - role: rridane.base_systems.system_manage_etc_hosts
+      when: prepare_etc_hosts | default(false)

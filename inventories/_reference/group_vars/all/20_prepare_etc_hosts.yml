@@ -1,0 +1,8 @@
+---
+# === 20 · DNS · /etc/hosts — rôle system_manage_etc_hosts ===
+prepare_etc_hosts: false
+
+# etc_hosts: []                           # [{ip: 10.0.0.5, names: [api.k8s.internal], comment: "VIP API"}]
+# etc_hosts_state: present                # present | absent
+# etc_hosts_block_name: ansible_managed_etc_hosts
+# etc_hosts_backup: true

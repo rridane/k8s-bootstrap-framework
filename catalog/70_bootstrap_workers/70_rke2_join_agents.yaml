@@ -1,0 +1,12 @@
+---
+- name: Join agents
+  hosts: workers
+  become: true
+  tags:
+    - bootstrap
+    - bootstrap:rke2_agents
+  roles:
+    - role: rridane.kubernetes_admin.rke2_fetch_token
+      when: bootstrap_rke2_agent | default(false)
+    - role: rridane.kubernetes_admin.rke2_agent
+      when: bootstrap_rke2_agent | default(false)

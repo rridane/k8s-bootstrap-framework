@@ -1,0 +1,27 @@
+# Present
+- name: Configure network rules
+  hosts:
+    - masters
+    - workers
+    - load_balancers
+  tags:
+    - prepare
+    - prepare:network_rules
+  roles:
+    - role: rridane.base_systems.system_configure_kernel_network_rules
+      when: prepare_network_rules | default(false)
+
+# Absent
+- name: Configure network rules
+  hosts:
+    - masters
+    - workers
+    - load_balancers
+  tags:
+    - clean
+    - clean:network_rules
+  roles:
+    - role: rridane.base_systems.system_configure_kernel_network_rules
+      vars:
+        net_tuning_state: absent
+      when: prepare_network_rules | default(false)

@@ -1,0 +1,30 @@
+# Teardown RKE2 — pour repartir de zéro en cas de souci.
+# NB : RKE2 embarque cilium/kubevip/config DANS le nœud → le clean est par NŒUD
+# (uninstall global), pas par brique. Gaté par les mêmes flags bootstrap_*.
+- name: Uninstall RKE2 servers
+  hosts: masters
+  become: true
+  tags:
+    - clean
+    - clean:rke2_server
+  tasks:
+    - name: "rke2-uninstall.sh"
+      ansible.builtin.command:
+        cmd: /usr/local/bin/rke2-uninstall.sh
+      args:
+        removes: /usr/local/bin/rke2-uninstall.sh
+      when: bootstrap_rke2_server | default(false)
+
+- name: Uninstall RKE2 agents
+  hosts: workers
+  become: true
+  tags:
+    - clean
+    - clean:rke2_agent
+  tasks:
+    - name: "rke2-agent-uninstall.sh"
+      ansible.builtin.command:
+        cmd: /usr/local/bin/rke2-agent-uninstall.sh
+      args:
+        removes: /usr/local/bin/rke2-agent-uninstall.sh
+      when: bootstrap_rke2_agent | default(false)

@@ -1,0 +1,29 @@
+# Present
+- name: Configure swap
+  hosts:
+    - masters
+    - workers
+    - load_balancers
+  tags:
+    - prepare
+    - prepare:swap
+  roles:
+    - role: rridane.base_systems.system_configure_swap
+      vars:
+        swap_enabled: false
+      when: prepare_swap | default(false)
+
+# Absent
+- name: Configure swap
+  hosts:
+    - masters
+    - workers
+    - load_balancers
+  tags:
+    - clean
+    - clean:swap
+  roles:
+    - role: rridane.base_systems.system_configure_swap
+      vars:
+        swap_enabled: true
+      when: prepare_swap | default(false)

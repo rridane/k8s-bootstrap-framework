@@ -1,0 +1,28 @@
+---
+# === 62 · Bootstrap masters · serveurs RKE2 (amorçage réel) ===
+# Rôles : rke2_server (primaire + join), rke2_fetch_token (récupère le token).
+# Vient APRÈS les manifests (60 cilium + 61 kube-vip) : RKE2 les applique à ce start.
+bootstrap_rke2_server: false                   # true => active bootstrap:rke2_primary + bootstrap:rke2_servers
+
+rke2_primary: "{{ groups['master_primary'] | first }}"   # nœud d'amorçage (dérivé du groupe)
+rke2_server_url: "https://10.0.0.5:9345"                  # endpoint de join (servers 2..n + agents) — VIP ou master
+
+# rke2_join_token: ""                     # fourni AUTOMATIQUEMENT par rke2_fetch_token (ne pas remplir)
+# rke2_token_path: /var/lib/rancher/rke2/server/node-token
+# rke2_version: ""                        # ex v1.31.4+rke2r1 ; vide => suit le canal
+# rke2_channel: stable
+# rke2_install_url: https://get.rke2.io
+# rke2_bootstrap_timeout: 600             # attente kubeconfig au bootstrap (s)
+
+# Config RKE2 — pass-through 1:1 vers /etc/rancher/rke2/config.yaml (NE PAS y mettre server/token) :
+rke2_config:
+  cni: cilium
+  disable-kube-proxy: true
+  cluster-cidr: 10.42.0.0/16
+  service-cidr: 10.43.0.0/16
+  node-ip: "{{ rke2_node_ip }}"
+  tls-san:
+    - 10.0.0.5                            # la VIP
+    - api.k8s.internal                    # + éventuel FQDN
+  disable:
+    - rke2-ingress-nginx                  # ex: on gère l'ingress nous-mêmes

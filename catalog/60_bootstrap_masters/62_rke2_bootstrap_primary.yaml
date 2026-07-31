@@ -1,0 +1,10 @@
+---
+- name: Bootstrap primary server
+  hosts: master_primary
+  become: true
+  tags:
+    - bootstrap
+    - bootstrap:rke2_primary
+  roles:
+    - role: rridane.kubernetes_admin.rke2_server
+      when: bootstrap_rke2_server | default(false)

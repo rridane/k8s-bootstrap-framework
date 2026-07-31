@@ -1,0 +1,16 @@
+---
+- name: Join workers
+  hosts: workers
+  become: true
+  tags:
+    - bootstrap
+    - bootstrap:kubeadm_worker_nodes
+  vars:
+    # Commande de join générée sur le primaire (fact posé par k8s_get_join_command).
+    k8s_join_command_worker: "{{ hostvars[k8s_primary_cp_host].k8s_join_command_worker }}"
+    k8s_manage_kubelet: true
+  roles:
+    - role: rridane.kubernetes_admin.k8s_manage_worker_nodes
+      when:
+        - bootstrap_kubeadm_worker | default(false)
+        - groups['workers'] is defined and (groups['workers'] | length) > 0

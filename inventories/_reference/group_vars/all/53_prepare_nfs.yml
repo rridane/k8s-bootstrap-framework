@@ -1,0 +1,5 @@
+---
+# === 53 · Prépa k8s · client NFS — rôle system_install_nfs_commons ===
+prepare_nfs: false
+
+# nfs_common_state: present               # present | absent | latest

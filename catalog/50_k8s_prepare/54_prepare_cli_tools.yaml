@@ -1,0 +1,33 @@
+---
+# INSTALL
+- name: Install k8s CLI tools (helm, k9s, krew...)
+  hosts:
+    - workers
+    - masters
+  tags:
+    - prepare
+    - prepare:cli_tools
+  roles:
+    - role: rridane.base_systems.system_k8s_cli_swissknife
+      when: prepare_cli_tools | default(false)
+
+# UNINSTALL
+- name: Remove k8s CLI tools
+  hosts:
+    - workers
+    - masters
+  tags:
+    - clean
+    - clean:cli_tools
+  roles:
+    - role: rridane.base_systems.system_k8s_cli_swissknife
+      vars:
+        tools_state: absent
+        tools_to_remove:
+          - helm
+          - k9s
+          - kustomize
+          - kubent
+          - popeye
+          - yq
+      when: prepare_cli_tools | default(false)

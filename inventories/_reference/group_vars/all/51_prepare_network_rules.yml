@@ -1,0 +1,15 @@
+---
+# === 51 · Prépa k8s · modules noyau + sysctl — rôle system_configure_kernel_network_rules ===
+prepare_network_rules: false
+
+# net_tuning_state: present               # present | absent
+# net_tuning_modules: [overlay, br_netfilter]
+# net_tuning_load_now: true               # charger les modules immédiatement
+# net_tuning_apply_sysctl_now: true       # appliquer les sysctl immédiatement
+# net_tuning_sysctls:
+#   net.bridge.bridge-nf-call-iptables: 1
+#   net.bridge.bridge-nf-call-ip6tables: 1
+#   net.ipv4.ip_forward: 1
+#   net.ipv4.conf.all.rp_filter: 0        # requis Cilium kube-proxy-free (rp_filter strict casse le eBPF)
+# net_tuning_modules_conf_path: /etc/modules-load.d/net-tuning.conf
+# net_tuning_sysctl_conf_path: /etc/sysctl.d/999-net-overrides.conf   # 999 => gagne sur le durcissement

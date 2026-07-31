@@ -1,0 +1,13 @@
+---
+- name: Join additional servers
+  hosts: masters:!master_primary
+  become: true
+  serial: 1
+  tags:
+    - bootstrap
+    - bootstrap:rke2_servers
+  roles:
+    - role: rridane.kubernetes_admin.rke2_fetch_token
+      when: bootstrap_rke2_server | default(false)
+    - role: rridane.kubernetes_admin.rke2_server
+      when: bootstrap_rke2_server | default(false)

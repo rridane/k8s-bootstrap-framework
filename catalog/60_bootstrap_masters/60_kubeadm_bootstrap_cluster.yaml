@@ -1,0 +1,10 @@
+---
+- name: Bootstrap control-plane (primary)
+  hosts: master_primary
+  become: true
+  tags:
+    - bootstrap
+    - bootstrap:kubeadm_control_planes
+  roles:
+    - role: rridane.kubernetes_admin.k8s_bootstrap_control_plane
+      when: bootstrap_kubeadm_control_plane | default(false)

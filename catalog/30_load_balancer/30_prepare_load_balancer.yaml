@@ -1,0 +1,22 @@
+# INSTALL
+- name: configure high availability load balancers
+  hosts: load_balancers
+  tags:
+    - prepare
+    - prepare:load_balancer
+  roles:
+    - role: rridane.base_systems.system_install_haproxy_keepalived
+      when: prepare_load_balancer | default(false)
+
+# UNINSTALL
+- name: remove haproxy keepalived and purge confs
+  hosts: load_balancers
+  tags:
+    - clean
+    - clean:load_balancer
+  roles:
+    - role: rridane.base_systems.system_install_haproxy_keepalived
+      vars:
+        haproxy_keepalived_state: absent
+        haproxy_keepalived_purge: true
+      when: prepare_load_balancer | default(false)

@@ -1,0 +1,25 @@
+# INSTALL
+- name: install containerd
+  hosts:
+    - workers
+    - masters
+  tags:
+    - prepare
+    - prepare:containerd
+  roles:
+    - role: rridane.base_systems.system_install_containerd
+      when: prepare_containerd | default(false)
+
+# UNINSTALL
+- name: uninstall containerd
+  hosts:
+    - workers
+    - masters
+  tags:
+    - clean
+    - clean:containerd
+  roles:
+    - role: rridane.base_systems.system_install_containerd
+      vars:
+        containerd_state: absent
+      when: prepare_containerd | default(false)

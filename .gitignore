@@ -1,0 +1,27 @@
+# runtime / bruit
+.env
+.fact_cache/
+*.retry
+*~
+.idea/
+*.tar.gz
+
+# secrets — jamais committer
+*.ansible_vault_pass*
+**/vault.yml
+**/vault.yaml
+!**/vault.yml.example
+
+# collections vendorisées = artefact régénérable
+#   ansible-galaxy collection install -r requirements.yml -p collections
+collections/
+
+# venv ansible-core (isolé, jetable)
+.venv/
+
+# runner compilé (source dans tools/cluster/)
+/cluster
+
+# confs par cluster = local ; seul le template _reference est versionné
+inventories/*
+!inventories/_reference/
