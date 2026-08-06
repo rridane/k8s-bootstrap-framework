@@ -10,3 +10,5 @@ kubevip_vip: "10.0.0.5"                   # REQUIS — VIP de l'API
 # kubevip_image: ghcr.io/kube-vip/kube-vip:v0.8.7
 # kubevip_extra_env: {}                   # env kube-vip additionnels (nom: valeur)
 # kubevip_manifest_path: /var/lib/rancher/rke2/server/manifests/kube-vip.yaml
+# kubevip_kubeconfig_path: /etc/rancher/rke2/rke2.yaml   # monté dans le pod : kube-vip joint
+#                                         # l'API locale (fix Cilium kube-proxy-free)

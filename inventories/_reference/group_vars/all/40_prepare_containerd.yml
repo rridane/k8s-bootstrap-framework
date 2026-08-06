@@ -8,6 +8,7 @@ prepare_containerd: false
 # containerd_root: /mnt/data/containerd
 # containerd_registry_config_path: /etc/containerd/certs.d
 # containerd_registries: []               # [{host: reg.local, port: 5000, insecure: true, endpoints: ["http://reg.local:5000"]}]
+# containerd_proxy: ""                     # proxy unique => renseigne http+https d'un coup
 # containerd_proxy_http: ""
 # containerd_proxy_https: ""
 # containerd_no_proxy: ""

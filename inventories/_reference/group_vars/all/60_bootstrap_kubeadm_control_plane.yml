@@ -26,9 +26,27 @@ k8s_primary_cp_host: "{{ groups['master_primary'] | first }}"
 # k8s_etcd_local_enabled: true
 # k8s_etcd_data_dir: /mnt/data/etcd
 # k8s_timeout_for_control_plane: 4m0s
+# k8s_kubeadm_config_path: /tmp/kubeadm.yaml     # config kubeadm générée sur le primaire
+# k8s_kubeadm_bin: kubeadm
+# k8s_certificates_dir: /etc/kubernetes/pki
+# k8s_kubeconfig_src: /etc/kubernetes/admin.conf # copié vers dest ci-dessous
+# k8s_kubeconfig_dest: /root/.kube/config
+# k8s_kubeconfig_owner: root
+# k8s_kubeconfig_group: root
+# k8s_kubeconfig_dir_mode: "0700"
+# k8s_kubeconfig_file_mode: "0600"
 # k8s_copy_kubeconfig_for_user_enabled: false
+# k8s_copy_kubeconfig_for_user:           # {name, group, home} si _enabled (kubeconfig d'un user non-root)
 
 # --- k8s_get_join_command (génère les commandes de join sur le primaire) ---
 # k8s_join_token_ttl: 24h0m0s
 # k8s_upload_certs: true
 # k8s_extra_join_args: []
+
+# --- k8s_manage_master_nodes (join des CP secondaires : hosts masters:!master_primary, serial 1) ---
+# Ne se joue que si le groupe [masters] a plus d'un hôte.
+# k8s_join_command_control_plane : fourni AUTOMATIQUEMENT (fact du primaire) — ne pas remplir.
+# k8s_joined_check_path: /etc/kubernetes/kubelet.conf   # marqueur d'idempotence (déjà joint si présent)
+# k8s_manage_kubelet: true                # (re)démarre kubelet après le join
+# k8s_kubelet_service_name: kubelet
+# k8s_join_debug: false                   # true => affiche la sortie de kubeadm join

@@ -4,10 +4,26 @@
 # Cilium lui-même puis applique ce manifest). On génère, on n'applique pas.
 configure_rke2_cilium: false           # true pour activer cette étape (tag configure:rke2_cilium)
 
-# cilium_values:                          # pass-through => valuesContent du HelmChartConfig
+# --- CNI : valeurs Helm (pass-through => valuesContent du HelmChartConfig) ---
+# cilium_values:
 #   kubeProxyReplacement: true
 #   k8sServiceHost: "127.0.0.1"           # LB API local RKE2 (surtout PAS la VIP — deadlock)
 #   k8sServicePort: 6443
 #   l2announcements: { enabled: true }
-#   k8sClientRateLimit: { qps: 10, burst: 20 }
+#   k8sClientRateLimit: { qps: 10, burst: 20 }   # anti-flood API (gotcha connu du L2)
 # cilium_manifest_path: /var/lib/rancher/rke2/server/manifests/rke2-cilium-config.yaml
+
+# --- LB de Services eBPF (annonce L2) : la 2e VIP, celle de l'ingress ---
+# CR posés dans server/manifests/ ; RKE2 les auto-applique et RETENTE jusqu'à ce que les
+# CRD Cilium existent (auto-ordonnancement : aucun kubectl post-bootstrap).
+#
+# cilium_lb_pools: []                     # vide => AUCUN Service LoadBalancer. Chaque entrée :
+#                                         #   { name, blocks: [{start,stop}|{cidr}], serviceSelector: {matchLabels}? }
+#                                         # ex: [{ name: ingress, blocks: [{cidr: 10.0.0.241/32}] }]
+# cilium_l2_announce: false               # true => pose la CiliumL2AnnouncementPolicy (le "ON" de l'ARP)
+# cilium_l2_interfaces: []                # regex golang des interfaces ; vide => toutes
+# cilium_l2_node_selector: {}             # matchLabels des nœuds éligibles ; vide => tous
+# cilium_lb_pool_api_version: cilium.io/v2          # ⚠️ vérifier selon la version Cilium (kubectl get crd)
+# cilium_l2_policy_api_version: cilium.io/v2alpha1  # v2alpha1 tant que Cilium < 1.20
+# cilium_lb_pool_manifest_path: /var/lib/rancher/rke2/server/manifests/cilium-lb-pool.yaml
+# cilium_l2_policy_manifest_path: /var/lib/rancher/rke2/server/manifests/cilium-l2-policy.yaml

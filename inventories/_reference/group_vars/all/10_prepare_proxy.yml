@@ -26,6 +26,7 @@ prepare_proxy: false
 # cntlm_build_dir: /usr/local/src/cntlm
 # cntlm_bin_path: /usr/local/sbin/cntlm
 # cntlm_conf_path: /etc/cntlm.conf
+# cntlm_unit_path: /etc/systemd/system/cntlm.service
 # cntlm_username: ""                      # VAULTER
 # cntlm_domain: ""                        # VAULTER
 # cntlm_password: ""                      # VAULTER (ou cntlm_pass_ntlmv2)
@@ -46,6 +47,8 @@ prepare_proxy: false
 # unit_present: true
 # unit_scope: system                      # system | user
 # unit_content: ""                        # contenu inline du .service (bloc |)
+# unit_template_src: ""                   # OU un template Jinja (chemin relatif au rôle appelant)
+# unit_src_path: ""                       # OU un fichier .service absolu sur le contrôleur
 # unit_dropins: []                        # [{name: override.conf, content: "..."}]
 # unit_envfile_path: ""
 # unit_envfile_content: ""
