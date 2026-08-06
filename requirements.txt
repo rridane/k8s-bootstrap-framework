@@ -1,0 +1,7 @@
+# Runtime Python du controller Ansible.
+#
+# ansible-core >= 2.16 est REQUIS dès que les cibles sont en Python 3.12 (ex. Ubuntu 24.04) :
+# Python 3.12 a retiré cert_file/key_file de http.client.HTTPSConnection, et les cores < 2.16
+# les passaient encore -> tout get_url/uri HTTPS casse ("unexpected keyword argument 'cert_file'").
+# Testé avec ansible-core 2.18.18.
+ansible-core>=2.16
