@@ -11,6 +11,38 @@ independent steps. Each step is one Ansible role, it is switched on by a flag in
 the inventory, and you reach it by a tag. A small Go runner plays one tag at a
 time, and it always shows you a plan before it touches anything.
 
+## It runs a real cluster
+
+I use this to run my own cluster, not as a demo. It bootstrapped, and still grows:
+
+- **3 control-plane nodes** on OVH Public Cloud (Gravelines),
+- **3 SYS-1 bare-metal workers** (Roubaix), joined to the control plane over a
+  cross-datacenter **vRack**,
+- **RKE2 in kube-proxy-free mode** (Cilium eBPF), with **kube-vip** holding the
+  API VIP and Cilium L2 announcing the ingress VIP — no hardware load balancer.
+
+The runner plans, asks, then applies. Here it is adding a worker, and the result:
+
+    $ ./cluster prepare:netplan inventories/admin/host.ini --limit worker-2
+    ── plan (--check --diff) ──
+    TASK [system_configure_netplan : Render configuration]
+    + network:
+    +   ethernets:
+    +     eno2:
+    +       addresses: [10.0.0.102/24]
+    Appliquer ces changements ?  [yes/no] yes
+    ── apply ──
+    changed: [worker-2]
+
+    $ kubectl get nodes
+    NAME       STATUS   ROLES                VERSION
+    master-0   Ready    control-plane,etcd   v1.35.6+rke2r1
+    master-1   Ready    control-plane,etcd   v1.35.6+rke2r1
+    master-2   Ready    control-plane,etcd   v1.35.6+rke2r1
+    worker-0   Ready    <none>               v1.35.6+rke2r1
+    worker-1   Ready    <none>               v1.35.7+rke2r1
+    worker-2   Ready    <none>               v1.35.7+rke2r1
+
 ## The three verbs
 
 Every step is named `verb:target`.
@@ -56,21 +88,39 @@ workers join through the VIP.
 
 ## Using it
 
-    # the roles, from Ansible Galaxy
+    # 1. the Ansible runtime — ansible-core >= 2.16 (needed for Python 3.12 targets)
+    python3 -m venv .venv && source .venv/bin/activate
+    pip install -r requirements.txt
+
+    # 2. the roles, from Ansible Galaxy
     ansible-galaxy collection install -r requirements.yml -p collections
 
-    # the runner
-    go build -o cluster ./tools/cluster
+    # 3. the runner (the go.mod lives in tools/cluster)
+    (cd tools/cluster && go build -o ../../cluster .)
 
-    # copy the reference inventory and adapt it to your machines
+    # 4. copy the reference inventory and adapt it to your machines
     cp -r inventories/_reference inventories/my-cluster
 
-    # run a step: it plans first, then asks before applying
-    ./cluster prepare:proxy        inventories/my-cluster/host.ini
-    ./cluster bootstrap:rke2_server inventories/my-cluster/host.ini
+    # 5. run a single step — it plans, asks, then applies
+    ./cluster prepare:time          inventories/my-cluster/host.ini
+    ./cluster bootstrap:rke2_agents inventories/my-cluster/host.ini
 
 The commented reference inventory is in `inventories/_reference/`. The convention
 there is one config file per role, kept next to the machines that role runs on.
+
+## Per-target pipeline
+
+A target can declare which steps it actually runs, in an
+`inventories/<target>/pipeline.yaml`:
+
+    prepare:   [time, netplan, etc_hosts, network_rules, swap]
+    configure: [rke2_cilium, rke2_kubevip]
+    bootstrap: [rke2_primary, rke2_servers, rke2_agents]
+
+Then a whole phase plays exactly those steps, in catalog order — nothing else:
+
+    ./cluster pipeline inventories/my-cluster/host.ini    # show what will run
+    ./cluster phase prepare inventories/my-cluster/host.ini
 
 ## How it is laid out
 
@@ -78,10 +128,12 @@ there is one config file per role, kept next to the machines that role runs on.
 its playbook. `playbooks/` has the bootstrap and clean wrappers. `tools/cluster/`
 is the Go runner. `inventories/_reference/` is the inventory template.
 
-The roles themselves are not in this repo. They are packaged in two public Ansible
-Galaxy collections, `rridane.base_systems` for the host preparation and
+## The roles live in two collections
+
+The logic isn't in this repo. The roles are packaged in two public Ansible Galaxy
+collections — `rridane.base_systems` for the host preparation and
 `rridane.kubernetes_admin` for the cluster bootstrap. This repo is the
-orchestration layer that ties them together.
+orchestration layer on top: the catalogue, the routing, and the runner.
 
 ## Why it is built this way
 
