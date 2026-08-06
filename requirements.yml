@@ -3,8 +3,8 @@ collections:
     version: ">=1.1.0"
   - name: rridane.kubernetes_admin
     version: ">=0.9.0"
-  # deps modules des rôles de prépa (le paquet apt les embarquait ; ansible-core seul non).
-  # base_systems devrait à terme les déclarer dans son galaxy.yml (dette métadonnées).
+  # Modules requis par les rôles de prépa, déclarés ici explicitement (ansible-core
+  # seul ne les embarque pas) :
   - name: ansible.posix          # sysctl (network_rules)
     version: ">=1.5.0"
   - name: community.general      # modprobe, timezone
