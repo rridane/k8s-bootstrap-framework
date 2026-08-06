@@ -40,7 +40,7 @@ func rootCmd() *cobra.Command {
 	}
 	root.Flags().SetInterspersed(false) // tout ce qui suit le tag part vers ansible
 	root.Flags().BoolVar(&force, "force", false, "applique directement, sans plan ni confirmation")
-	root.AddCommand(listCmd(), phaseCmd())
+	root.AddCommand(listCmd(), phaseCmd(), pipelineCmd())
 	return root
 }
 
@@ -132,8 +132,8 @@ func listCmd() *cobra.Command {
 func phaseCmd() *cobra.Command {
 	var force bool
 	c := &cobra.Command{
-		Use:               "phase <nom> <inventaire> [args ansible...]",
-		Short:             "Joue une phase entière via son agrégateur (prepare, clean, bootstrap-rke2...)",
+		Use:               "phase <verbe> <inventaire> [args ansible...]",
+		Short:             "Joue une phase : les étapes du pipeline.yaml de la cible, sinon l'agrégateur",
 		Args:              cobra.MinimumNArgs(2),
 		ValidArgsFunction: completePhaseThenInventory,
 		SilenceUsage:      true,
@@ -143,21 +143,18 @@ func phaseCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			ph, ok := cfg.Phases[args[0]]
-			if !ok {
-				return fmt.Errorf("phase inconnue %q (voir cluster.yaml)", args[0])
-			}
+			verb, inventory := args[0], args[1]
 			passthrough := args[2:]
 			if popped, rest := popFlags(passthrough, "--force", "-f"); popped {
 				force = true
 				passthrough = rest
 			}
-			if err := requireInventory(args[1]); err != nil {
+			if err := requireInventory(inventory); err != nil {
 				return err
 			}
-			base := []string{"-i", args[1], ph.Playbook}
-			if ph.Tag != "" {
-				base = append(base, "-t", ph.Tag)
+			base, err := resolvePhase(cfg, inventory, verb)
+			if err != nil {
+				return err
 			}
 			return executePlanApply(base, passthrough, force)
 		},
@@ -165,6 +162,64 @@ func phaseCmd() *cobra.Command {
 	c.Flags().SetInterspersed(false)
 	c.Flags().BoolVar(&force, "force", false, "applique directement, sans plan ni confirmation")
 	return c
+}
+
+// resolvePhase construit la commande ansible d'une phase. Priorité au pipeline.yaml de
+// la cible (n'exécute QUE les étapes déclarées, via --tags sur l'agrégateur routé) ;
+// sinon fallback sur l'agrégateur de phase de cluster.yaml (comportement historique).
+func resolvePhase(cfg *Config, inventory, verb string) ([]string, error) {
+	pipe, err := LoadPipeline(filepath.Dir(inventory))
+	if err != nil {
+		return nil, err
+	}
+	if tags := pipe.Tags(verb); len(tags) > 0 {
+		playbook, ok := cfg.Route(tags[0])
+		if !ok {
+			return nil, fmt.Errorf("phase %q : aucune route agrégateur pour %q (voir cluster.yaml)", verb, tags[0])
+		}
+		return []string{"-i", inventory, playbook, "-t", strings.Join(tags, ",")}, nil
+	}
+	ph, ok := cfg.Phases[verb]
+	if !ok {
+		return nil, fmt.Errorf("phase %q inconnue : ni dans le pipeline.yaml de la cible, ni dans cluster.yaml", verb)
+	}
+	base := []string{"-i", inventory, ph.Playbook}
+	if ph.Tag != "" {
+		base = append(base, "-t", ph.Tag)
+	}
+	return base, nil
+}
+
+func pipelineCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:               "pipeline <inventaire>",
+		Short:             "Affiche le pipeline déclaré d'une cible (inventories/<cible>/pipeline.yaml)",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeInventoryOnly,
+		SilenceUsage:      true,
+		SilenceErrors:     true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			pipe, err := LoadPipeline(filepath.Dir(args[0]))
+			if err != nil {
+				return err
+			}
+			if pipe == nil {
+				fmt.Println("(aucun pipeline.yaml — la cible retombe sur les agrégateurs de cluster.yaml)")
+				return nil
+			}
+			for _, verb := range []string{"prepare", "configure", "bootstrap", "clean"} {
+				steps := pipe[verb]
+				if len(steps) == 0 {
+					continue
+				}
+				fmt.Println("── " + verb + " ──")
+				for _, s := range steps {
+					fmt.Printf("  %s:%s\n", verb, s)
+				}
+			}
+			return nil
+		},
+	}
 }
 
 // ── helpers ──
@@ -291,8 +346,13 @@ func completePhaseThenInventory(cmd *cobra.Command, args []string, toComplete st
 	}
 	switch len(args) {
 	case 0:
-		names := make([]string, 0, len(cfg.Phases))
+		// verbes standards du pipeline.yaml + noms d'agrégateurs de cluster.yaml
+		set := map[string]bool{"prepare": true, "configure": true, "bootstrap": true, "clean": true}
 		for n := range cfg.Phases {
+			set[n] = true
+		}
+		names := make([]string, 0, len(set))
+		for n := range set {
 			names = append(names, n)
 		}
 		return withPrefix(names, toComplete), cobra.ShellCompDirectiveNoFileComp
@@ -301,6 +361,15 @@ func completePhaseThenInventory(cmd *cobra.Command, args []string, toComplete st
 	default:
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
+}
+
+// completeInventoryOnly complète le seul argument inventaire (ex. `cluster pipeline`).
+func completeInventoryOnly(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	cfg, err := LoadConfig(configFile)
+	if err != nil || len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	return inventoryCandidates(cfg, toComplete), cobra.ShellCompDirectiveNoFileComp
 }
 
 func inventoryCandidates(cfg *Config, toComplete string) []string {
