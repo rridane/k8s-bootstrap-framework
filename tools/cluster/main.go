@@ -72,20 +72,16 @@ func runTag(tag, inventory string, passthrough []string, force bool) error {
 // resolvePlaybook : 1 fichier catalog -> lui (silencieux) ; sinon agrégateur.
 func resolvePlaybook(cfg *Config, cat *Catalog, tag string) (string, error) {
 	files := cat.FilesFor(tag)
-	switch {
-	case len(files) == 1:
+	if len(files) == 1 {
 		return files[0], nil
-	case len(files) > 1:
-		if pb, ok := cfg.Route(tag); ok {
-			return pb, nil
-		}
-		return "", fmt.Errorf("tag %q présent dans %d fichiers et aucune route agrégateur", tag, len(files))
-	default:
-		if pb, ok := cfg.Route(tag); ok {
-			return pb, nil
-		}
-		return "", fmt.Errorf("tag inconnu %q — voir `cluster list`", tag)
 	}
+	if pb, ok := cfg.Route(tag); ok {
+		return pb, nil
+	}
+	if len(files) > 1 {
+		return "", fmt.Errorf("tag %q présent dans %d fichiers et aucune route agrégateur", tag, len(files))
+	}
+	return "", fmt.Errorf("tag inconnu %q — voir `cluster list`", tag)
 }
 
 // executePlanApply : --check (plan seul) / --force (apply direct) / plan->confirm->apply.
