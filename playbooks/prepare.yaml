@@ -13,3 +13,4 @@
 - import_playbook: ../catalog/50_k8s_prepare/52_prepare_swap.yaml
 - import_playbook: ../catalog/50_k8s_prepare/53_prepare_nfs.yaml
 - import_playbook: ../catalog/50_k8s_prepare/54_prepare_cli_tools.yaml
+- import_playbook: ../catalog/50_k8s_prepare/55_prepare_iscsi.yaml

@@ -1,0 +1,27 @@
+# Present
+- name: install open-iscsi initiator
+  hosts:
+    - workers
+    - masters
+  tags:
+    - prepare
+    - prepare:iscsi
+  roles:
+    - role: rridane.base_systems.system_install_iscsi
+      vars:
+        iscsi_state: present
+      when: prepare_iscsi | default(false)
+
+# Absent
+- name: remove open-iscsi initiator
+  hosts:
+    - workers
+    - masters
+  tags:
+    - clean
+    - clean:iscsi
+  roles:
+    - role: rridane.base_systems.system_install_iscsi
+      vars:
+        iscsi_state: absent
+      when: prepare_iscsi | default(false)

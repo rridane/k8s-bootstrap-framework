@@ -1,0 +1,7 @@
+---
+# === 55 · Prépa k8s · initiateur iSCSI (open-iscsi + iscsid) — rôle system_install_iscsi ===
+# Prérequis stockage bloc (ex. Longhorn) : sans iscsid actif, les volumes ne
+# s'attachent pas aux nœuds.
+prepare_iscsi: false
+
+# iscsi_state: present               # present | absent | latest
