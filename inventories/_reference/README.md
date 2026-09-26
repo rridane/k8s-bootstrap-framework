@@ -14,6 +14,9 @@ pour une nouvelle cible et garde les fichiers/options utiles.
   - `configure_<distro>_<x>` = étape qui **génère un manifeste** dans `server/manifests/`
     (RKE2 l'applique au start), elle n'amorce rien : `configure_rke2_cilium`,
     `configure_rke2_kubevip`.
+  - `upgrade_<distro>` = étape qui **monte** un cluster existant d'une mineure
+    (`upgrade_kubeadm` + `k8s_upgrade_version`) : préparation jusqu'au plan (80),
+    control plane (81), puis kubelets (82).
 
 ## Activer une étape
 Mettre son flag à `true` (ex. `prepare_proxy: true`, `configure_rke2_kubevip: true`)
@@ -22,7 +25,8 @@ et surcharger les options voulues. Une étape dont le flag n'est pas `true` est
 
 ## Lancer une seule étape (tag)
 Chaque étape a un tag `<action>:<distro_>step` : `-t prepare:proxy`, `-t clean:proxy`,
-`-t configure:rke2_kubevip`, `-t bootstrap:rke2_primary`, `-t clean:rke2_agent`.
+`-t configure:rke2_kubevip`, `-t bootstrap:rke2_primary`, `-t clean:rke2_agent`,
+`-t upgrade:kubeadm_prepare`, `-t upgrade:kubeadm_control_plane`, `-t upgrade:kubeadm_nodes`.
 
 ## Jouer
 ```sh
@@ -31,6 +35,8 @@ ansible-playbook -i inventories/<cible>/host.ini playbooks/prepare.yaml -t prepa
 ansible-playbook -i inventories/<cible>/host.ini playbooks/prepare.yaml -t clean
 # bootstrap
 ansible-playbook -i inventories/<cible>/host.ini playbooks/bootstrap/rke2_bootstrap.yaml
+# upgrade kubeadm d'une mineure (control plane, puis kubelets)
+ansible-playbook -i inventories/<cible>/host.ini playbooks/upgrade/kubeadm_upgrade.yaml
 # teardown
 ansible-playbook -i inventories/<cible>/host.ini playbooks/clean/rke2_clean.yaml
 ```

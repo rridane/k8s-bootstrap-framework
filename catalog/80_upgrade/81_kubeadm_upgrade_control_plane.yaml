@@ -1,0 +1,36 @@
+---
+# Upgrade kubeadm — étape 1 : le control plane, d'UNE mineure (k8s_upgrade_version).
+# Primaire d'abord (`kubeadm upgrade apply`), puis les autres un par un (`kubeadm upgrade node`).
+# Les kubelets ne bougent pas ici : étape 82, une fois tous les apiservers à la cible.
+# any_errors_fatal : un échec arrête tout, on ne monte pas un secondaire derrière un primaire KO.
+- name: Upgrade control plane — primary (kubeadm upgrade apply)
+  hosts: master_primary
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  tags:
+    - upgrade
+    - upgrade:kubeadm_control_plane
+  roles:
+    - role: rridane.kubernetes_admin.k8s_upgrade_packages
+      vars:
+        k8s_upgrade_packages: [kubeadm]
+      when: upgrade_kubeadm | default(false) | bool
+    - role: rridane.kubernetes_admin.k8s_upgrade_control_plane
+      when: upgrade_kubeadm | default(false) | bool
+
+- name: Upgrade control plane — other control-planes (kubeadm upgrade node)
+  hosts: masters:!master_primary
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  tags:
+    - upgrade
+    - upgrade:kubeadm_control_plane
+  roles:
+    - role: rridane.kubernetes_admin.k8s_upgrade_packages
+      vars:
+        k8s_upgrade_packages: [kubeadm]
+      when: upgrade_kubeadm | default(false) | bool
+    - role: rridane.kubernetes_admin.k8s_upgrade_control_plane
+      when: upgrade_kubeadm | default(false) | bool

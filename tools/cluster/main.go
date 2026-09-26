@@ -207,7 +207,7 @@ func pipelineCmd() *cobra.Command {
 				fmt.Println("(aucun pipeline.yaml — la cible retombe sur les agrégateurs de cluster.yaml)")
 				return nil
 			}
-			for _, verb := range []string{"prepare", "configure", "bootstrap", "clean"} {
+			for _, verb := range []string{"prepare", "configure", "bootstrap", "upgrade", "clean"} {
 				steps := pipe[verb]
 				if len(steps) == 0 {
 					continue
@@ -240,7 +240,7 @@ func requireInventory(inv string) error {
 
 func printList(cat *Catalog) {
 	hasClean := map[string]bool{}
-	var prep, rke2, kubeadm []string
+	var prep, rke2, kubeadm, upgrade []string
 	for _, t := range cat.Tags() {
 		switch {
 		case strings.HasPrefix(t, "prepare:"):
@@ -251,6 +251,8 @@ func printList(cat *Catalog) {
 			rke2 = append(rke2, t)
 		case strings.HasPrefix(t, "bootstrap:kubeadm_"):
 			kubeadm = append(kubeadm, t)
+		case strings.HasPrefix(t, "upgrade:"):
+			upgrade = append(upgrade, t)
 		}
 	}
 	fmt.Println("── prépa  (prepare:<x> · clean:<x>) ──")
@@ -263,6 +265,7 @@ func printList(cat *Catalog) {
 	}
 	printGroup("bootstrap RKE2", rke2)
 	printGroup("bootstrap kubeadm", kubeadm)
+	printGroup("upgrade kubeadm", upgrade)
 }
 
 func printGroup(title string, tags []string) {
@@ -347,7 +350,7 @@ func completePhaseThenInventory(cmd *cobra.Command, args []string, toComplete st
 	switch len(args) {
 	case 0:
 		// verbes standards du pipeline.yaml + noms d'agrégateurs de cluster.yaml
-		set := map[string]bool{"prepare": true, "configure": true, "bootstrap": true, "clean": true}
+		set := map[string]bool{"prepare": true, "configure": true, "bootstrap": true, "upgrade": true, "clean": true}
 		for n := range cfg.Phases {
 			set[n] = true
 		}

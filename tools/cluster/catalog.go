@@ -9,8 +9,8 @@ import (
 )
 
 // tagRe capture les tags spécifiques "action:step" écrits dans les fichiers catalog.
-// (les tags nus prepare/clean/bootstrap, sans ":", sont volontairement ignorés)
-var tagRe = regexp.MustCompile(`(prepare|clean|bootstrap|configure):[a-z0-9_]+`)
+// (les tags nus prepare/clean/bootstrap/upgrade, sans ":", sont volontairement ignorés)
+var tagRe = regexp.MustCompile(`(prepare|clean|bootstrap|configure|upgrade):[a-z0-9_]+`)
 
 // Catalog indexe tag -> fichiers du catalog qui le portent (source de vérité unique).
 type Catalog struct {

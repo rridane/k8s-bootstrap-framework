@@ -1,0 +1,7 @@
+# Upgrade kubeadm d'UNE mineure (k8s_upgrade_version) : préparation (jusqu'au plan),
+# control plane, puis kubelets. En pratique, jouer les tags un par un :
+#   upgrade:kubeadm_prepare → upgrade:kubeadm_control_plane → upgrade:kubeadm_nodes
+# Répéter en changeant k8s_upgrade_version pour chaque mineure (1.27 → 1.28 → …).
+- import_playbook: ../../catalog/80_upgrade/80_kubeadm_upgrade_prepare.yaml
+- import_playbook: ../../catalog/80_upgrade/81_kubeadm_upgrade_control_plane.yaml
+- import_playbook: ../../catalog/80_upgrade/82_kubeadm_upgrade_nodes.yaml

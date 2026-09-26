@@ -14,6 +14,7 @@ import (
 //	prepare:   [time, netplan, etc_hosts, network_rules, swap, cli_tools]
 //	configure: [rke2_cilium, rke2_kubevip]
 //	bootstrap: [rke2_primary, rke2_servers, rke2_agents]
+//	upgrade:   [kubeadm_prepare, kubeadm_control_plane, kubeadm_nodes]
 //
 // `cluster phase <verbe> <cible>` ne joue QUE ces étapes (via --tags sur l'agrégateur
 // routé). Absent => la phase retombe sur l'agrégateur déclaré dans cluster.yaml.

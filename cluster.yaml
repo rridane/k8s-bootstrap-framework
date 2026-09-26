@@ -1,5 +1,5 @@
 # Config du runner `cluster`.
-# - Une étape (tag prepare:x / clean:x / bootstrap:x) est jouée via SON fichier catalog
+# - Une étape (tag prepare:x / clean:x / bootstrap:x / upgrade:x) est jouée via SON fichier catalog
 #   (sortie silencieuse : les autres étapes ne sont pas chargées).
 # - Si un tag couvre plusieurs fichiers (ou n'est pas dans le catalog), on retombe sur
 #   l'agrégateur via `routes`.
@@ -18,6 +18,7 @@ routes:
   - { prefix: "configure:rke2_", playbook: playbooks/bootstrap/rke2_bootstrap.yaml }
   - { prefix: "bootstrap:rke2_",    playbook: playbooks/bootstrap/rke2_bootstrap.yaml }
   - { prefix: "bootstrap:kubeadm_", playbook: playbooks/bootstrap/kubeadm_bootstrap.yaml }
+  - { prefix: "upgrade:kubeadm_",   playbook: playbooks/upgrade/kubeadm_upgrade.yaml }
 
 # Phases : tout jouer d'un coup (`cluster phase prepare <inv>`).
 phases:
@@ -25,3 +26,4 @@ phases:
   clean:             { playbook: playbooks/prepare.yaml, tag: clean }
   bootstrap-rke2:    { playbook: playbooks/bootstrap/rke2_bootstrap.yaml }
   bootstrap-kubeadm: { playbook: playbooks/bootstrap/kubeadm_bootstrap.yaml }
+  upgrade-kubeadm:   { playbook: playbooks/upgrade/kubeadm_upgrade.yaml }

@@ -43,7 +43,7 @@ The runner plans, asks, then applies. Here it is adding a worker, and the result
     worker-1   Ready    <none>               v1.35.7+rke2r1
     worker-2   Ready    <none>               v1.35.7+rke2r1
 
-## The three verbs
+## The verbs
 
 Every step is named `verb:target`.
 
@@ -58,6 +58,9 @@ anything. For RKE2 that is where the Cilium and kube-vip manifests are generated
 So in practice you run things like `prepare:proxy`, then `configure:rke2_cilium`,
 then `bootstrap:rke2_server`.
 
+`upgrade:*` moves a running cluster up, one minor at a time — kubeadm today (see
+[Upgrading a kubeadm cluster](#upgrading-a-kubeadm-cluster)).
+
 ## The timeline
 
 The steps live under `catalog/`, numbered in the order you would run them:
@@ -70,6 +73,7 @@ The steps live under `catalog/`, numbered in the order you would run them:
     50  k8s prepare      kube packages, network sysctls, swap, nfs, cli tools
     60  masters          bring up the control plane (kubeadm or RKE2)
     70  workers          join the workers
+    80  upgrade          move a kubeadm cluster up one minor (prepare, control plane, kubelets)
 
 Everything from 00 to 50 is shared. Only the 60 and 70 steps differ depending on
 whether you are doing kubeadm or RKE2.
@@ -108,6 +112,42 @@ workers join through the VIP.
 The commented reference inventory is in `inventories/_reference/`. The convention
 there is one config file per role, kept next to the machines that role runs on.
 
+## Upgrading a kubeadm cluster
+
+Same catalogue, same runner, same plan-then-apply. Three steps, one minor per run, following
+the kubeadm procedure to the letter:
+
+    # inventories/<target>/group_vars/all/80_upgrade_kubeadm.yml
+    upgrade_kubeadm: true
+    k8s_upgrade_version: "1.28.15"
+
+    ./cluster upgrade:kubeadm_prepare       inventories/<target>/host.ini   # 80
+    ./cluster upgrade:kubeadm_control_plane inventories/<target>/host.ini   # 81
+    ./cluster upgrade:kubeadm_nodes         inventories/<target>/host.ini   # 82
+
+The repository key is a one-off, installed by hand on each node before the first upgrade
+(see the `k8s_upgrade_packages` README): it is the same key for every series, and EOL series
+publish a stale copy of it (`EXPKEYSIG`). The roles only check it, and stop before changing
+anything if it is missing or expired.
+
+- **80 — prepare** (all control-planes): the pkgs.k8s.io repository is moved to the target
+  series and only `kubeadm` is bumped and held; guards (control-planes Ready, one minor at
+  a time, previous hop finished on every apiserver, etcd healthy), images pre-pulled, and
+  `kubeadm upgrade plan` shown on the primary. Nothing touches the control plane: replay it
+  until the plan is clean.
+- **81 — control plane** (`serial: 1`, primary first): the same guards, a copy of
+  `/etc/kubernetes` and an etcd snapshot taken right before, `kubeadm upgrade apply` on the
+  primary and `kubeadm upgrade node` on the others, and health checks after each node.
+- **82 — kubelets** (`serial: 1`, control-planes then workers): refuses to put a kubelet
+  above any apiserver; drain, packages, `kubeadm upgrade node` on workers, the known
+  fixes (`--container-runtime=remote` removed in 1.27, containerd `sandbox_image`
+  aligned on kubeadm's pause image), kubelet restart, wait Ready, uncordon — only if the
+  node was schedulable before.
+
+Every node already at the target is skipped, so a run can be replayed after a failure.
+The plan (`--check`) runs the read-only discovery and `kubeadm upgrade plan` for real;
+nothing that changes the cluster runs before you confirm.
+
 ## Per-target pipeline
 
 A target can declare which steps it actually runs, in an
@@ -116,6 +156,7 @@ A target can declare which steps it actually runs, in an
     prepare:   [time, netplan, etc_hosts, network_rules, swap]
     configure: [rke2_cilium, rke2_kubevip]
     bootstrap: [rke2_primary, rke2_servers, rke2_agents]
+    upgrade:   [kubeadm_prepare, kubeadm_control_plane, kubeadm_nodes]
 
 Then a whole phase plays exactly those steps, in catalog order — nothing else:
 
@@ -125,7 +166,7 @@ Then a whole phase plays exactly those steps, in catalog order — nothing else:
 ## How it is laid out
 
 `catalog/` holds the steps, one sub-playbook each. `cluster.yaml` maps a tag to
-its playbook. `playbooks/` has the bootstrap and clean wrappers. `tools/cluster/`
+its playbook. `playbooks/` has the bootstrap, upgrade and clean wrappers. `tools/cluster/`
 is the Go runner. `inventories/_reference/` is the inventory template.
 
 ## The roles live in two collections

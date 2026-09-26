@@ -1,0 +1,21 @@
+---
+# Upgrade kubeadm — étape 0 : préparer sans rien casser. Sur chaque control-plane :
+# dépôt pkgs.k8s.io + kubeadm à la cible, garde-fous, pré-pull des images, et sur le
+# primaire `kubeadm upgrade plan`. Aucune modification du control plane : rejouable à
+# volonté, jusqu'à ce que le plan soit propre. On enchaîne ensuite sur l'étape 81.
+- name: Prepare control-plane upgrade (kubeadm, images, plan)
+  hosts: masters
+  become: true
+  any_errors_fatal: true
+  tags:
+    - upgrade
+    - upgrade:kubeadm_prepare
+  roles:
+    - role: rridane.kubernetes_admin.k8s_upgrade_packages
+      vars:
+        k8s_upgrade_packages: [kubeadm]
+      when: upgrade_kubeadm | default(false) | bool
+    - role: rridane.kubernetes_admin.k8s_upgrade_control_plane
+      vars:
+        k8s_upgrade_mode: prepare
+      when: upgrade_kubeadm | default(false) | bool

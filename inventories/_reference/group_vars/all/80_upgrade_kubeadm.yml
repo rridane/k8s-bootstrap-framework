@@ -1,0 +1,51 @@
+---
+# === 80 · Upgrade kubeadm — d'UNE mineure à la fois ===
+# Rôles : k8s_upgrade_packages + k8s_upgrade_control_plane (étapes 80 prepare / 81, masters)
+#         k8s_upgrade_node (étape 82, masters puis workers)
+# Tags : upgrade:kubeadm_prepare → upgrade:kubeadm_control_plane → upgrade:kubeadm_nodes (_masters / _workers)
+# Répéter pour chaque mineure en changeant k8s_upgrade_version (1.27.16 → 1.28.15 → …).
+upgrade_kubeadm: false                     # true => active les étapes upgrade:kubeadm_*
+
+k8s_upgrade_version: ""                    # REQUIS — x.y.z, dernier patch de la mineure visée
+# k8s_primary_cp_host : défini en 60 (groups['master_primary'] | first) — joue `apply`
+
+# --- k8s_upgrade_packages (dépôt pkgs.k8s.io + paquets figés) ---
+# k8s_upgrade_package_revision: "1.1"      # kubeadm=1.28.15-1.1
+# Clé du dépôt : posée UNE fois par nœud, à la main (README de k8s_upgrade_packages) —
+# vérifiée (présente, non expirée) avant toute modification, jamais téléchargée par le rôle.
+# k8s_upgrade_apt_keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+# k8s_upgrade_apt_list: /etc/apt/sources.list.d/kubernetes.list
+# k8s_upgrade_allow_downgrade: true        # kubeadm installé trop haut par apt
+# k8s_upgrade_hold: true                   # apt-mark hold
+# k8s_upgrade_environment: {}              # proxy explicite des tâches réseau
+
+# --- k8s_upgrade_control_plane (étapes 80 / 81) ---
+# k8s_upgrade_mode : fixé par le catalog (prepare en 80, apply en 81) — ne pas le mettre ici
+# k8s_upgrade_node_name: "{{ ansible_hostname | lower }}"   # nom du nœud k8s (static pods)
+# k8s_upgrade_backup_dir: /root/k8s-upgrade-backups         # <dir>/v<version>/ sur chaque master
+# k8s_upgrade_backup_config: true           # copie de /etc/kubernetes
+# k8s_upgrade_etcd_snapshot: true           # snapshot etcd (primaire, avant apply)
+# k8s_upgrade_prepull_images: true
+# k8s_upgrade_show_plan: true               # affiche `kubeadm upgrade plan`
+# k8s_upgrade_apply_extra_args: []          # ex ["--ignore-preflight-errors=KubeletVersion"]
+# k8s_upgrade_node_extra_args: []
+# k8s_upgrade_health_retries: 60
+# k8s_upgrade_health_delay: 5
+
+# --- k8s_upgrade_node (étape 82) ---
+# k8s_upgrade_node_packages: [kubeadm, kubelet, kubectl]
+# k8s_upgrade_interactive: true             # blocage (drain / kubelet) : diagnostic + PAUSE opérateur
+#                                          # ([Entrée] = retenter, abort = stop) ; false en CI
+# k8s_upgrade_drain: true
+# k8s_upgrade_drain_args: [--ignore-daemonsets, --delete-emptydir-data]
+# k8s_upgrade_drain_attempt_timeout: 120s   # durée d'une tentative de drain
+# k8s_upgrade_drain_max_attempts: 5
+# k8s_upgrade_drain_extra_args: []          # ex ["--force"] : pods sans contrôleur (jobs CI tués)
+# k8s_upgrade_uncordon: true                # si le nœud était en service avant, ou cordonné par un upgrade interrompu
+# k8s_upgrade_cordon_annotation: k8s-upgrade/cordoned   # marque posée avant le drain, retirée à l'uncordon
+# k8s_upgrade_allow_kubelet_skip: false     # une mineure à la fois
+# k8s_upgrade_sandbox_image_fix: true       # sandbox_image containerd = pause attendue par kubeadm
+# k8s_upgrade_remove_container_runtime_flag: true   # --container-runtime=remote (supprimé en 1.27)
+# k8s_upgrade_ready_retries: 60
+# k8s_upgrade_ready_delay: 5
+# k8s_upgrade_ready_max_attempts: 3         # attentes Ready (retries × delay chacune)

@@ -1,0 +1,32 @@
+---
+# Upgrade kubeadm — étape 2 : les kubelets, un nœud à la fois (drain → paquets →
+# restart → uncordon). Control-planes d'abord, puis workers. Le rôle refuse de monter un
+# kubelet au-dessus d'un apiserver : l'étape 81 doit être terminée sur tous les masters.
+#   upgrade:kubeadm_nodes          = masters puis workers
+#   upgrade:kubeadm_nodes_masters  = masters seulement
+#   upgrade:kubeadm_nodes_workers  = workers seulement (--limit pour un sous-ensemble)
+- name: Upgrade kubelets — control-planes
+  hosts: masters
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  tags:
+    - upgrade
+    - upgrade:kubeadm_nodes
+    - upgrade:kubeadm_nodes_masters
+  roles:
+    - role: rridane.kubernetes_admin.k8s_upgrade_node
+      when: upgrade_kubeadm | default(false) | bool
+
+- name: Upgrade kubelets — workers
+  hosts: workers
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  tags:
+    - upgrade
+    - upgrade:kubeadm_nodes
+    - upgrade:kubeadm_nodes_workers
+  roles:
+    - role: rridane.kubernetes_admin.k8s_upgrade_node
+      when: upgrade_kubeadm | default(false) | bool
