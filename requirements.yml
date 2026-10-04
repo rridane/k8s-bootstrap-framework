@@ -2,7 +2,7 @@ collections:
   - name: rridane.base_systems
     version: ">=1.2.0"
   - name: rridane.kubernetes_admin
-    version: ">=0.10.0"
+    version: ">=0.10.1"
   # Modules requis par les rôles de prépa, déclarés ici explicitement (ansible-core
   # seul ne les embarque pas) :
   - name: ansible.posix          # sysctl (network_rules)

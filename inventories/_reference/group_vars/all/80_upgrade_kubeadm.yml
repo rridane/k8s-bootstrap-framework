@@ -23,7 +23,14 @@ k8s_upgrade_version: ""                    # REQUIS — x.y.z, dernier patch de 
 # k8s_upgrade_mode : fixé par le catalog (prepare en 80, apply en 81) — ne pas le mettre ici
 # k8s_upgrade_node_name: "{{ ansible_hostname | lower }}"   # nom du nœud k8s (static pods)
 # k8s_upgrade_backup_dir: /root/k8s-upgrade-backups         # <dir>/v<version>/ sur chaque master
-# k8s_upgrade_backup_config: true           # copie de /etc/kubernetes
+# k8s_upgrade_move_kubeadm_backups: false   # true : après l'upgrade, déplace les sauvegardes etcd que
+#                                          # kubeadm vient d'écrire dans /etc/kubernetes/tmp (chemin
+#                                          # figé, ~ taille du data dir) vers <backup_dir>/v<version>/kubeadm/
+# k8s_upgrade_min_free_mb: 1024             # espace libre exigé (sauvegardes + /etc/kubernetes/tmp)
+# k8s_upgrade_kubeadm_unset_env: [http_proxy, https_proxy, no_proxy, HTTP_PROXY, HTTPS_PROXY, NO_PROXY]
+#                                          # retirées de l'env de kubeadm (il recopie le proxy dans
+#                                          # les manifests du control plane) — aussi lu par l'étape 82
+# k8s_upgrade_backup_config: true           # copie de /etc/kubernetes (sans tmp/)
 # k8s_upgrade_etcd_snapshot: true           # snapshot etcd (primaire, avant apply)
 # k8s_upgrade_prepull_images: true
 # k8s_upgrade_show_plan: true               # affiche `kubeadm upgrade plan`
